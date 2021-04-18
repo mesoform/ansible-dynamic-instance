@@ -12,20 +12,20 @@ To be used as an [Ansible Galaxy role](https://docs.ansible.com/ansible/latest/g
 
 ### Configuration
 
-The playbook is designed to run on a local machine. Either a developers laptop or some CICD build
-agent and connect to whatever Docker Engine is defined by setting, or not, the environment variables
-above.
+The playbook is designed to run on against a local machine where the relevant libraries are installed for the given Cloud provider. It will run
+against localhost because the point of this playbook is to dynamically create the instances which we're then going to configure. It will then update
+the Ansible inventory.
 
 However, when running on a Mac, it's been noticed that the correct version of Python isn't
 identified. Returning errors like:
 ```yamlex
-msg: 'Error: Docker SDK for Python version is 1.10.6 (gMacBookPro''s Python /usr/local/Cellar/ansible/2.10.5/libexec/bin/python3). Minimum version required is 2.1.0.Try pip uninstall docker-py followed by pip install docker.'
+msg: 'Error: SDK for Python version is 1.10.6 (gMacBookPro''s Python /usr/local/Cellar/ansible/2.10.5/libexec/bin/python3). Minimum version required is 2.1.0.Try pip uninstall docker-py followed by pip install docker.'
 ```
 and
 ```yamlex
 msg: 'Error connecting: Error while fetching server API version: HTTPSConnectionPool(host=''lab2'', port=2376): Max retries exceeded with url: /version (Caused by SSLError(SSLError(1, ''[SSL: TLSV1_ALERT_PROTOCOL_VERSION] tlsv1 alert protocol version (_ssl.c:1123)'')))'
 ```
-on tasks that talk to Docker. I’ve resolved this previously by setting `ansible_python_interpreter
+If you bump into such an issue, I’ve resolved this previously by setting `ansible_python_interpreter
 = /usr/bin/python3` in `ansible.cfg`. Recently though, this has stopped working and required. Use
 one of the following options (change the path to the correct location)
 
