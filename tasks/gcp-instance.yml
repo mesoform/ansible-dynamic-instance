@@ -1,0 +1,49 @@
+plugin: gcp_compute
+auth_kind: "{{ gcp_auth_kind }}"
+
+- name: create GCP instance
+  gcp_compute_instance:
+    auth_kind: "{{ gcp_auth_kind }}"
+    name: "{{ instance_name }}"
+    zone: "{{}}"
+    machine_type: "{{}}"
+    state: present
+    metadata: "{{}}"
+    tags:
+      items: "{{}}"
+    network_interfaces:
+    - network:
+        self_link: "{{}}"
+      subnetwork:
+        self_link: "{{}}"
+      access_configs: []
+    scheduling:
+      preemtible: yes
+    can_ip_forward: no
+    disks:
+    - auto_delete: no
+      boot: yes
+      initialize_params:
+        source_image: "{{}}"
+    service_accounts:
+      - email: "{{}}"
+        scopes: "{{}}"
+    project: "{{ workspace }}"
+  register: build_instance
+- name: wait for SSH
+  wait_for:
+  delay: 120
+  host: "{{ build_instance.networkInterfaces[0].networkIP }}"
+  port: 22
+  state: started
+  sleep: 5
+- name: add host to dynamic inventory group
+  add_host:
+    hostname: "{{ build_instance.networkInterfaces[0].networkIP }}"
+    groupname: build_instances
+  when: private_ip
+- name: add host to dynamic inventory group
+  add_host:
+    hostname: "{{ build_instance.networkInterfaces[0].accessConfigs[0].natIP }}"
+    groupname: build_instances
+  when: not private_ip

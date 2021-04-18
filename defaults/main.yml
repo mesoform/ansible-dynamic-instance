@@ -1,0 +1,9 @@
+gcp_auth_kind: application
+csp:
+  - gcp
+private_ip: false
+service_name: primary
+node_id: 1
+instance_name: "{{ service_name }}-{{ node_id }}"
+instance_zone: europe-west1-a
+workspace: test

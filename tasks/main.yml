@@ -1,0 +1,20 @@
+---
+- name: create build instance
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  pre_tasks:
+    - name: Verify Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        mst: "Ansible version must be at least version 2.7"
+  tasks:
+    - import_tasks: gcp-instance.yml
+      when: gcp in csp
+      tags:
+        - gcp
+    - import_tasks: aws-instance.yml
+        when: aws in csp
+        tags:
+          - aws
+
