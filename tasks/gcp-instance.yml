@@ -1,6 +1,7 @@
 plugin: gcp_compute
 auth_kind: "{{ gcp_auth_kind }}"
 
+# Should be able to use an instance template
 - name: create GCP instance
   gcp_compute_instance:
     auth_kind: "{{ gcp_auth_kind }}"
@@ -29,7 +30,7 @@ auth_kind: "{{ gcp_auth_kind }}"
       - email: "{{}}"
         scopes: "{{}}"
     project: "{{ workspace }}"
-  register: build_instance
+  register: dynamic_instance
 - name: wait for SSH
   wait_for:
   delay: 120
@@ -39,11 +40,11 @@ auth_kind: "{{ gcp_auth_kind }}"
   sleep: 5
 - name: add host to dynamic inventory group
   add_host:
-    hostname: "{{ build_instance.networkInterfaces[0].networkIP }}"
-    groupname: build_instances
+    hostname: "{{ dynamic_instance.networkInterfaces[0].networkIP }}"
+    groupname: dynamic_instances
   when: private_ip
 - name: add host to dynamic inventory group
   add_host:
-    hostname: "{{ build_instance.networkInterfaces[0].accessConfigs[0].natIP }}"
-    groupname: build_instances
+    hostname: "{{ dynamic_instance.networkInterfaces[0].accessConfigs[0].natIP }}"
+    groupname: dynamic_instances
   when: not private_ip

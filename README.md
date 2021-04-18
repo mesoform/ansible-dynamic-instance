@@ -16,6 +16,30 @@ The playbook is designed to run on against a local machine where the relevant li
 against localhost because the point of this playbook is to dynamically create the instances which we're then going to configure. It will then update
 the Ansible inventory.
 
+roles/requirements.yml
+```yamlex
+- src: https://github.com/mesoform/ansible-dynamic-instance.git
+  name: create-nodes
+  scm: git
+```
+
+Root playbook
+```yamlex
+- name: create build instance
+  hosts: localhost
+  gather_facts: no
+  connection: local
+  pre_tasks:
+    - name: Verify Ansible version
+      assert:
+        that: "ansible_version.full is version_compare('2.7', '>=')"
+        mst: "Ansible version must be at least version 2.7"
+  roles:
+    - role: create-nodes
+      tags:
+        - create_instance
+```
+
 However, when running on a Mac, it's been noticed that the correct version of Python isn't
 identified. Returning errors like:
 ```yamlex
@@ -48,28 +72,13 @@ ansible-playbook -v main.yml -e 'ansible_python_interpreter=/usr/local/bin/pytho
 See the [Ansible documentation](https://docs.ansible.com/ansible/latest/reference_appendices/python_3_support.html)
 
 
-Change the preset values in `vars/main.yml` to meet your requirements and cloud service provider
+Change the preset values by creating your own `vars/main.yml` to meet your requirements and cloud service provider
 settings. To allow for consistent names across CSPs there are some things to note:
 * `workspace` = GCP project or AWS account
 * `gcp_auth_kind` (in defaults) = setting for getting dynamic inventory to work due to poorly 
-documented values and needing to investigate in the code. 
-  
+documented values and needing to investigate in the code.
 
-### Dependencies
-You will need to have a predefined set of roles that you will use to configure the build instance 
-before it is used to create a new image. The idea is to use git modules to manage this. To set this 
-up, you must first create the submodule
-```bash
-URL_TO_ROLE_REPO=<URL_TO_ROLE_REPO> \
-ROLE_NAME=<ROLE_NAME> \
-REPO_ROOT=$(pwd) \
-git submodule add \
---name $ROLE_NAME \
-"$URL_TO_ROLE_REPO" \ 
-$REPO_ROOT/roles/$ROLE_NAME
-```
-Change `<URL_TO_ROLE_REPO>` and `<ROLE_NAME>` for your own needs. `ROLE_NAME` is just an 
-alphanumeric identifier 
+
 ### How to run tests
 * 
 ### Deployment instructions
